@@ -1,0 +1,46 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Timer</title>
+</head>
+<body>
+    <h1>WebSocket Timer</h1>
+    <button onclick="createGame()">creer partie</button>
+    <button onclick="startGame()">Démarrer la partie</button>
+    <div id="timerDisplay"></div>
+    <div id="partieDisplay"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const timerDisplay = document.getElementById('timerDisplay');
+        const partieDisplay = document.getElementById('partieDisplay');
+        let idPartie;
+console.log(socket)
+
+
+        function createGame() {
+            socket.emit('createGame', '123');
+        }
+
+        function startGame() {
+            socket.emit('startGame');
+        }
+
+        socket.on('timer', (message) => {
+            timerDisplay.innerText = `Temps restant : ${message.tempsRestant} secondes`;
+        });
+        socket.on('partie', (message) => {
+            partieDisplay.innerText = `question : ${message.numeroQuestion}`;
+        });
+        socket.on('game-users', (message) => {
+            console.log(message);
+        })
+
+    </script>
+</body>
+</html>
