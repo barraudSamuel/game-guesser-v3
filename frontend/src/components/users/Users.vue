@@ -1,7 +1,6 @@
 <script setup>
 
 import User from "@/components/users/User.vue";
-import {ref} from "vue";
 import {useGameStore} from "@/stores/game.js";
 
 const gameStore = useGameStore()

@@ -2,42 +2,64 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
+const {questions} = require('./questions')
 
 class Game {
     constructor(gameId, io) {
         this.id = gameId
         this.io = io
         this.questions = []
-        this.currentQuestion = 1
+        this.currentQuestionIndex = 0
         this.timer = null
-        this.timeForQuestion = 30
+        this.timeForQuestion = 5
         this.remainingTimeForQuestion = this.timeForQuestion
         this.users = []
         this.status = 'pending'
+        this.is_cooldown_enabled = true
     }
 
-    startGame() {
+    startGame(payload) {
+        console.log('start game')
+        this.is_cooldown_enabled = payload.is_cooldown_enabled
+        this.selectQuestions(5)
         this.status = 'running'
-        this.io.to(this.id).emit('game',{question : this.currentQuestion, status: this.status})
+        this.io.to(this.id).emit('game:infos',{
+            current_question : {
+                ...this.questions[this.currentQuestionIndex],
+                question_type: 'blur'
+            },
+            status: this.status,
+            current_question_index: this.currentQuestionIndex,
+            total_questions: this.questions.length,
+        })
         this.startTimer()
+    }
+
+    resetGame() {
+        this.status=  'pending'
+        this.remainingTimeForQuestion = this.timeForQuestion;
+        // todo reset user pts
+        // todo reset question
+        this.io.to(this.id).emit('game:infos', {status: this.status})
+        this.io.to(this.id).emit('game:infos-users', {users: this.users})
     }
 
     startTimer() {
         this.timer = setInterval(()=>{
-            this.io.to(this.id).emit('game-timer', {remainingTime: this.remainingTimeForQuestion})
             if (this.remainingTimeForQuestion === 0) { // si le timer est fini
                 this.stopTimer() // on stop le timer
-                if (this.currentQuestion < this.questions.length) { // on passe a la question suivante
+                if (this.currentQuestionIndex < this.questions.length) { // on passe a la question suivante
                     this.nextQuestion();
                 } else { // la partie est finie
                     this.status = 'finished'
-                    this.io.to(this.id).emit('game',{status : this.status})
+                    this.io.to(this.id).emit('game:infos',{status : this.status})
                 }
 
             } else {
+                this.io.to(this.id).emit('game:timer', {remaining_time: this.remainingTimeForQuestion})
                 this.remainingTimeForQuestion--;
             }
-        })
+        },1000)
     }
 
     stopTimer() {
@@ -45,10 +67,36 @@ class Game {
     }
 
     nextQuestion() {
-        this.currentQuestion++;
+        this.currentQuestionIndex++;
         this.remainingTimeForQuestion = this.timeForQuestion;
-        this.io.to(this.id).emit('partie', { question: this.currentQuestion });
+        this.io.to(this.id).emit('game:next-question', {
+                current_question : {
+                    ...this.questions[this.currentQuestionIndex],
+                    question_type: 'blur'
+                },
+            current_question_index: this.currentQuestionIndex,
+            remaining_time_for_question: this.remainingTimeForQuestion
+        });
         this.startTimer();
+    }
+
+    selectQuestions(numberOfQuestions) {
+        console.log(questions)
+            const questionsCopy = [...questions];
+
+        // Tableau résultant
+        const newQuestions = [];
+        for (let i = 0; i < numberOfQuestions; i++) {
+            // Sélection d'un index au hasard dans le tableau restant
+            const indexRandom = Math.floor(Math.random() * questionsCopy.length);
+
+            // Ajout de l'élément correspondant à l'index au tableau résultant
+            newQuestions.push(questionsCopy[indexRandom]);
+
+            // Suppression de l'élément du tableau de base copié pour éviter la répétition
+            questionsCopy.splice(indexRandom, 1);
+        }
+        this.questions = newQuestions
     }
 
     joinGame(data, socket) {
@@ -107,12 +155,22 @@ function ServeurJeu() {
             }
         })
 
-        socket.on('game:start', (gameId) => {
+        socket.on('game:start', (payload) => {
             // todo tester si c'est bien l'admin qui decide de lancer la partie
-            if(!games[gameId]){
+            if(!games[payload.id]){
                 return
             }else {
-                games[gameId].startGame()
+                // todo editer la config de la partie
+                games[payload.id].startGame(payload)
+            }
+        })
+
+        socket.on('game:reset',(payload)=>{
+            // todo tester si c'est bien l'admin qui decide de reset la partie
+            if(!games[payload.id]){
+                return
+            }else {
+                games[payload.id].resetGame()
             }
         })
 

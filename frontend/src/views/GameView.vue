@@ -1,8 +1,10 @@
 <script setup>
 import {ref} from "vue";
 import Lobby from "@/components/lobby/Lobby.vue";
-
-const gameStatus = ref('lobby')
+import Running from "@/components/running/Running.vue";
+import {useGameStore} from "@/stores/game.js";
+import Finished from "@/components/finished/Finished.vue";
+const gameStore = useGameStore()
 </script>
 
 <template>
@@ -10,9 +12,9 @@ const gameStatus = ref('lobby')
     <div class="hero min-h-screen">
       <div class="hero-content text-center w-full">
         <template v-if="true">
-          <Lobby v-if="gameStatus === 'lobby'" />
-<!--          <running v-if="gameStatus === 'running'" />
-          <finished v-if="gameStatus === 'finished'" />-->
+          <Lobby v-if="gameStore.game.status === 'pending'" />
+          <Running v-if="gameStore.game.status === 'running'" />
+          <Finished v-if="gameStore.game.status === 'finished'" />
         </template>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import {ref} from "vue";
 import { useClipboard } from '@vueuse/core'
 import {useRoute} from "vue-router";
+import {socket} from "@/socket.js";
 
 const route = useRoute()
 
@@ -22,7 +23,6 @@ const questionTypesDescription = ref({
 const gameRef = ref({
   number_questions: 20,
   time_to_answer: 30,
-  status: 'lobby',
   is_cooldown_enabled: true,
   question_types: [
     {
@@ -37,9 +37,10 @@ const gameRef = ref({
 })
 
 const startGame = async() => {
-  console.log('start')
-  console.log(gameRef.value)
-  // todo emit event
+  socket.emit('game:start', {
+    id: route.params.id,
+    ...gameRef.value
+  })
 }
 
 const invitationLink = ref(`${window.location.origin}?code=${route.params.id}`)
