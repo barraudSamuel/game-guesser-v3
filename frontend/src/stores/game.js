@@ -5,12 +5,7 @@ import { socket } from "@/socket";
 export const useGameStore = defineStore('game', () => {
     const game = ref({
         status: 'pending',
-        current_question: {
-            cover_url: 'https://www.cite-telecoms.com/voy_content/uploads/2018/03/as11-40-5873_medium-610x613.jpg',
-            ost_url: '',
-            title: '',
-            question_type: 'blur'
-        },
+        current_question: {},
         current_question_index: 1,
         total_questions: 0,
         remaining_time_for_question: 30,
@@ -81,6 +76,18 @@ export const useGameStore = defineStore('game', () => {
     socket.on('game:timer', (payload) => {
         console.log(`timer ${payload.remaining_time}`)
         game.value.remaining_time_for_question = payload.remaining_time
+    })
+
+    socket.on('game:reset',(payload)=>{
+        game.value.status = 'pending'
+        game.value.current_question = {}
+        game.value.current_question_index = 1
+        game.value.total_questions = 0
+        game.value.remaining_time_for_question = 30
+        game.value.time_for_question = 30
+        game.value.users.forEach((user, index) => {
+            game.value.users[index].pts = 0
+        })
     })
 
 

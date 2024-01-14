@@ -48,11 +48,15 @@ class Game {
 
     resetGame() {
         this.status=  'pending'
-        this.remainingTimeForQuestion = this.timeForQuestion;
-        // todo reset user pts
-        // todo reset question
-        this.io.to(this.id).emit('game:infos', {status: this.status})
-        this.io.to(this.id).emit('game:infos-users', {users: this.users})
+        this.questions = []
+        this.currentQuestionIndex = 0
+        this.timer = null
+        this.timeForQuestion = 30
+        this.remainingTimeForQuestion = this.timeForQuestion
+        this.users.forEach((user, index) => {
+            this.users[index].pts = 0
+        })
+        this.io.to(this.id).emit('game:reset')
     }
 
     startTimer() {
