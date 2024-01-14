@@ -31,7 +31,7 @@ class Game {
         this.timeForQuestion = payload.time_to_answer
         this.remainingTimeForQuestion = payload.time_to_answer
         const question = this.questions[this.currentQuestionIndex]
-        this.io.to(this.id).emit('game:infos',{
+        this.io.to(this.id).emit('game:started',{
             cq : {
                 t: question.titles[0],
                 ost: question.ost_url,

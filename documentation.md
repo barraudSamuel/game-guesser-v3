@@ -27,8 +27,8 @@ envois serveur:
 > est trigger quand on rejoint une partie et quand on reset une partie
 > 
 > renvoit la liste de tous les joueurs
-- `game:infos`
-> est trigger quand la partie passe en  running, quand elle est finie et quand on a reset
+- `game:starded`
+> est trigger quand la partie passe en  running
 >
 > renvoit les infos de la partie
 - `game:user-leaved`

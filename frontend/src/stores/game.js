@@ -48,7 +48,7 @@ export const useGameStore = defineStore('game', () => {
         game.value.users = payload.users
     })
 
-    socket.on('game:infos', (payload) => {
+    socket.on('game:started', (payload) => {
         game.value.status = payload.st
         game.value.current_question.title = payload?.cq?.t
         game.value.current_question.ost_url = payload?.cq?.ost
