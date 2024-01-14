@@ -48,6 +48,11 @@ envois serveur:
 > 
 > il contient : `{remaining_time: Number}`
 
+- `game:finished`
+> est trigger quand la partie se finit
+> 
+> il contient: `{st: 'finished'}`
+
 event de base server :
 - `disconnecting` 
 - `connection`

@@ -5,7 +5,6 @@ import { socket } from "@/socket";
 export const useGameStore = defineStore('game', () => {
     const game = ref({
         status: 'pending',
-        is_cooldown_enabled: true,
         current_question: {
             cover_url: 'https://www.cite-telecoms.com/voy_content/uploads/2018/03/as11-40-5873_medium-610x613.jpg',
             ost_url: '',
@@ -25,7 +24,7 @@ export const useGameStore = defineStore('game', () => {
 
     const lettersTitleRate = computed (() => {
         if (game.value && game.value.current_question ) {
-            return Math.round((game.value.remaining_time_for_question - 1) / game.value.current_question.titles[0].split(' ').join('').split('').length * 1000)
+            return Math.round((game.value.remaining_time_for_question - 1) / game.value.current_question.title.split(' ').join('').split('').length * 1000)
         }
         return 0
     })
@@ -55,17 +54,28 @@ export const useGameStore = defineStore('game', () => {
     })
 
     socket.on('game:infos', (payload) => {
-        game.value.status = payload.status
-        game.value.current_question = payload.current_question
-        game.value.current_question_index = payload.current_question_index + 1
-        game.value.total_questions = payload.total_questions
+        game.value.status = payload.st
+        game.value.current_question.title = payload?.cq?.t
+        game.value.current_question.ost_url = payload?.cq?.ost
+        game.value.current_question.cover_url = payload?.cq?.cover
+        game.value.current_question.question_type = payload?.cq?.qt
+        game.value.current_question_index = payload.cqi + 1
+        game.value.total_questions = payload.tq
+        game.value.remaining_time_for_question = payload.rtfq
     })
 
     socket.on('game:next-question', (payload)=> {
         console.log('next questions')
-        game.value.remaining_time_for_question = payload.remaining_time_for_question
-        game.value.current_question = payload.current_question
-        game.value.current_question_index = payload.current_question_index + 1
+        game.value.current_question.title = payload?.cq?.t
+        game.value.current_question.ost_url = payload?.cq?.ost
+        game.value.current_question.cover_url = payload?.cq?.cover
+        game.value.current_question.question_type = payload?.cq?.qt
+        game.value.current_question_index = payload.cqi + 1
+        game.value.remaining_time_for_question = payload.rtfq
+    })
+
+    socket.on('game:finished',(payload) => {
+        game.value.status = payload.st
     })
 
     socket.on('game:timer', (payload) => {

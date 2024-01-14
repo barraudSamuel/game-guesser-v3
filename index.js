@@ -4,6 +4,14 @@ const http = require('http');
 const socketIO = require('socket.io');
 const {questions} = require('./questions')
 
+// names:
+// cq => current_question
+// qt => question_type
+// st => status
+// cqi => current_question_index
+// tq => total_questions
+// rtfq => remaining_time_for_question
+
 class Game {
     constructor(gameId, io) {
         this.id = gameId
@@ -11,26 +19,29 @@ class Game {
         this.questions = []
         this.currentQuestionIndex = 0
         this.timer = null
-        this.timeForQuestion = 5
+        this.timeForQuestion = 30
         this.remainingTimeForQuestion = this.timeForQuestion
         this.users = []
         this.status = 'pending'
-        this.is_cooldown_enabled = true
     }
 
     startGame(payload) {
-        console.log('start game')
-        this.is_cooldown_enabled = payload.is_cooldown_enabled
-        this.selectQuestions(5)
+        this.selectQuestions(payload.number_questions)
         this.status = 'running'
+        this.timeForQuestion = payload.time_to_answer
+        this.remainingTimeForQuestion = payload.time_to_answer
+        const question = this.questions[this.currentQuestionIndex]
         this.io.to(this.id).emit('game:infos',{
-            current_question : {
-                ...this.questions[this.currentQuestionIndex],
-                question_type: 'blur'
+            cq : {
+                t: question.titles[0],
+                ost: question.ost_url,
+                cover: question.cover_url,
+                qt: 'blur'
             },
-            status: this.status,
-            current_question_index: this.currentQuestionIndex,
-            total_questions: this.questions.length,
+            st: this.status,
+            cqi: this.currentQuestionIndex,
+            tq: this.questions.length,
+            rtfq: this.timeForQuestion
         })
         this.startTimer()
     }
@@ -45,14 +56,15 @@ class Game {
     }
 
     startTimer() {
+        this.remainingTimeForQuestion--;
         this.timer = setInterval(()=>{
             if (this.remainingTimeForQuestion === 0) { // si le timer est fini
                 this.stopTimer() // on stop le timer
-                if (this.currentQuestionIndex < this.questions.length) { // on passe a la question suivante
+                if (this.currentQuestionIndex + 1 < this.questions.length) { // on passe a la question suivante
                     this.nextQuestion();
                 } else { // la partie est finie
                     this.status = 'finished'
-                    this.io.to(this.id).emit('game:infos',{status : this.status})
+                    this.io.to(this.id).emit('game:finished',{st : this.status})
                 }
 
             } else {
@@ -69,20 +81,23 @@ class Game {
     nextQuestion() {
         this.currentQuestionIndex++;
         this.remainingTimeForQuestion = this.timeForQuestion;
+        const question = this.questions[this.currentQuestionIndex]
         this.io.to(this.id).emit('game:next-question', {
-                current_question : {
-                    ...this.questions[this.currentQuestionIndex],
-                    question_type: 'blur'
-                },
-            current_question_index: this.currentQuestionIndex,
-            remaining_time_for_question: this.remainingTimeForQuestion
+            cq : {
+                t: question.titles[0],
+                ost: question.ost_url,
+                cover: question.cover_url,
+                qt: 'blur'
+            },
+            cqi: this.currentQuestionIndex,
+            tq: this.questions.length,
+            rtfq: this.remainingTimeForQuestion
         });
         this.startTimer();
     }
 
     selectQuestions(numberOfQuestions) {
-        console.log(questions)
-            const questionsCopy = [...questions];
+        const questionsCopy = [...questions];
 
         // Tableau résultant
         const newQuestions = [];
@@ -108,7 +123,6 @@ class Game {
         }
         this.users.push(newUser)
         socket.broadcast.to(this.id).emit('game:user-joined',newUser)
-        // this.io.to(this.id).emit('game:user-joined',newUser)
     }
 
     leaveGame(id) {
@@ -156,12 +170,14 @@ function ServeurJeu() {
         })
 
         socket.on('game:start', (payload) => {
-            // todo tester si c'est bien l'admin qui decide de lancer la partie
             if(!games[payload.id]){
                 return
             }else {
-                // todo editer la config de la partie
-                games[payload.id].startGame(payload)
+                const game = games[payload.id]
+                const user = game.users.find(el => el.id === socket.id)
+                if (user.is_game_host) {
+                    game.startGame(payload)
+                }
             }
         })
 

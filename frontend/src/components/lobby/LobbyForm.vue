@@ -75,7 +75,7 @@ const { text, copy, copied, isSupported } = useClipboard({ invitationLink })
             </div>
           </div>
         </div>
-        <div class="mt-4">
+        <div class="mt-4 hidden">
           <h3 class="text-left font-semibold">Autres paramètres :</h3>
           <div class="grid grid-cols-2 sm:grid-cols-4 mt-2">
             <div class="form-control flex flex-row justify-start items-center">

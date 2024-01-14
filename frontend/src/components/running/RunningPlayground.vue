@@ -3,7 +3,7 @@
     <div class="card-body relative">
       <RunningVolume class="absolute right-3 top-2" />
       <div class="flex flex-col items-center justify-start">
-        <h2 class="font-bold text-3xl">{{ gameStore.game.current_question_index }} / {{ gameStore.game.number_questions }}</h2>
+        <h2 class="font-bold text-3xl">{{ gameStore.game.current_question_index }} / {{ gameStore.game.total_questions }}</h2>
         <RunningCover v-if="gameStore.game.current_question.question_type === 'blur'" class="mt-5" />
         <RunningOst v-if="gameStore.game.current_question.question_type === 'ost'" class="mt-5" />
 <!--        <RunningForm class="w-full lg:w-96 mt-5" />-->
