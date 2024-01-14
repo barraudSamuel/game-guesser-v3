@@ -186,11 +186,14 @@ function ServeurJeu() {
         })
 
         socket.on('game:reset',(payload)=>{
-            // todo tester si c'est bien l'admin qui decide de reset la partie
             if(!games[payload.id]){
                 return
             }else {
-                games[payload.id].resetGame()
+                const game = games[payload.id]
+                const user = game.users.find(el => el.id === socket.id)
+                if (user.is_game_host) {
+                    game.resetGame()
+                }
             }
         })
 

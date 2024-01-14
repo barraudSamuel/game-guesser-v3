@@ -2,12 +2,12 @@
   <div>
     <form @submit.prevent="submitAnswer" class="flex justify-center items-center">
       <div class="form-control w-full">
-        <div class="input-group input-group-lg" :class="{'bad-answer':isAnswerBad}">
-          <input ref="inputAnswer" type="text" placeholder="Réponse" v-model="answer" class="input w-full input-lg" :disabled="gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.uuid) || nbBadAnswer>=2 ||  isLoading">
-          <button type="submit" class="btn btn-square btn-lg btn-primary" :class="{'!btn-success opacity-60 cursor-not-allowed':gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.uuid)}" :disabled="gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.uuid) || nbBadAnswer>=2 || isLoading">
+        <div class="input-group input-group-lg flex" :class="{'bad-answer':isAnswerBad}">
+          <input ref="inputAnswer" type="text" placeholder="Réponse" v-model="answer" class="input w-full input-lg" :disabled="currentQuestionAnswered || nbBadAnswer>=2 ||  isLoading">
+          <button type="submit" class="btn btn-square btn-lg btn-primary" :class="{'!btn-success opacity-60 cursor-not-allowed':currentQuestionAnswered}" :disabled="currentQuestionAnswered || nbBadAnswer>=2 || isLoading">
             <i v-if="nbBadAnswer>=2" class="ri-hourglass-fill text-2xl"></i>
-            <i v-if="!gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.uuid) && nbBadAnswer<2" class="ri-send-plane-2-line text-2xl"></i>
-            <i v-if="gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.uuid)" class="ri-checkbox-circle-line text-2xl text-white"></i>
+            <i v-if="!currentQuestionAnswered && nbBadAnswer<2" class="ri-send-plane-2-line text-2xl"></i>
+            <i v-if="currentQuestionAnswered" class="ri-checkbox-circle-line text-2xl text-white"></i>
           </button>
         </div>
       </div>
@@ -33,8 +33,10 @@ const isLoading = ref(false)
 const audioGood = new Audio('../assets/sounds/good.mp3');
 const audioBad = new Audio('../assets/sounds/bad.mp3');
 const currentGameQuestionIndex = computed(()=>{
-  return gameStore.game.current_questionIndex
+  return gameStore.game.current_question_index
 })
+
+const currentQuestionAnswered = ref(false)
 
 watch(currentGameQuestionIndex,() => {
   answer.value = ''
@@ -59,7 +61,7 @@ watch(nbBadAnswer, (value)=>{
 
 const submitAnswer = async() => {
   isLoading.value = true
-  if (gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.value.uuid)){
+/*  if (gameStore.isUserAnsweredCurrentQuestion(gameStore.current_user.value.uuid)){
     isLoading.value = false
     return
   }
@@ -82,7 +84,7 @@ const submitAnswer = async() => {
    },250)
     isLoading.value = false
     return false
-  }
+  }*/
 }
 
 onKeyStroke('ArrowUp', (e) => {
