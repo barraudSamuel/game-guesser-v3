@@ -53,6 +53,20 @@ envois serveur:
 > 
 > il contient: `{st: 'finished'}`
 
+- `game:user-answered`
+> est trigger quand un utilisateur a repondu
+> il contient  `{id: String}`
+
 event de base server :
 - `disconnecting` 
 - `connection`
+
+
+
+-----------
+
+quand un joueur rejoint la partie en cours il doit avoir tt les infos de la games sinon il peut pas jouer
+
+ordonner la liste des joueurs par les points
+
+faire fonctionner les ost

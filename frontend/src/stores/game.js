@@ -19,7 +19,7 @@ export const useGameStore = defineStore('game', () => {
 
     const lettersTitleRate = computed (() => {
         if (game.value && game.value.current_question ) {
-            return Math.round((game.value.remaining_time_for_question - 1) / game.value.current_question.title.split(' ').join('').split('').length * 1000)
+            return Math.round((game.value.remaining_time_for_question - 1) / game.value.current_question.titles[0].split(' ').join('').split('').length * 1000)
         }
         return 0
     })
@@ -50,7 +50,7 @@ export const useGameStore = defineStore('game', () => {
 
     socket.on('game:started', (payload) => {
         game.value.status = payload.st
-        game.value.current_question.title = payload?.cq?.t
+        game.value.current_question.titles = payload?.cq?.t
         game.value.current_question.ost_url = payload?.cq?.ost
         game.value.current_question.cover_url = payload?.cq?.cover
         game.value.current_question.question_type = payload?.cq?.qt
@@ -61,7 +61,11 @@ export const useGameStore = defineStore('game', () => {
 
     socket.on('game:next-question', (payload)=> {
         console.log('next questions')
-        game.value.current_question.title = payload?.cq?.t
+        // reset user has_answered_questions
+        game.value.users.forEach((user, index) => {
+            game.value.users[index].has_answered_current_question = false
+        })
+        game.value.current_question.titles = payload?.cq?.t
         game.value.current_question.ost_url = payload?.cq?.ost
         game.value.current_question.cover_url = payload?.cq?.cover
         game.value.current_question.question_type = payload?.cq?.qt
@@ -79,6 +83,10 @@ export const useGameStore = defineStore('game', () => {
     })
 
     socket.on('game:reset',(payload)=>{
+        // reset user has_answered_questions
+        game.value.users.forEach((user, index) => {
+            game.value.users[index].has_answered_current_question = false
+        })
         game.value.status = 'pending'
         game.value.current_question = {}
         game.value.current_question_index = 1
@@ -88,6 +96,12 @@ export const useGameStore = defineStore('game', () => {
         game.value.users.forEach((user, index) => {
             game.value.users[index].pts = 0
         })
+    })
+
+    socket.on('game:user-answered', (payload) => {
+        const user = game.value.users.find(el => el.id === payload.id)
+        user.pts = payload.pts
+        user.has_answered_current_question = true
     })
 
 

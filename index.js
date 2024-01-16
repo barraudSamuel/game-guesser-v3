@@ -33,7 +33,7 @@ class Game {
         const question = this.questions[this.currentQuestionIndex]
         this.io.to(this.id).emit('game:started',{
             cq : {
-                t: question.titles[0],
+                t: question.titles,
                 ost: question.ost_url,
                 cover: question.cover_url,
                 qt: 'blur'
@@ -47,6 +47,7 @@ class Game {
     }
 
     resetGame() {
+        this.stopTimer()
         this.status=  'pending'
         this.questions = []
         this.currentQuestionIndex = 0
@@ -56,6 +57,7 @@ class Game {
         this.users.forEach((user, index) => {
             this.users[index].pts = 0
         })
+        this.resetUsersHasAnsweredCurrentQuestion()
         this.io.to(this.id).emit('game:reset')
     }
 
@@ -82,13 +84,19 @@ class Game {
         clearInterval(this.timer);
     }
 
+    resetUsersHasAnsweredCurrentQuestion () {
+        this.users.forEach((user, index) => {
+            this.users[index].has_answered_current_question = false
+        })
+    }
     nextQuestion() {
+        this.resetUsersHasAnsweredCurrentQuestion()
         this.currentQuestionIndex++;
         this.remainingTimeForQuestion = this.timeForQuestion;
         const question = this.questions[this.currentQuestionIndex]
         this.io.to(this.id).emit('game:next-question', {
             cq : {
-                t: question.titles[0],
+                t: question.titles,
                 ost: question.ost_url,
                 cover: question.cover_url,
                 qt: 'blur'
@@ -123,7 +131,7 @@ class Game {
             id: data.id,
             display_name: data.display_name,
             pts:0,
-            is_game_host: data.is_game_host
+            is_game_host: data.is_game_host,
         }
         this.users.push(newUser)
         socket.broadcast.to(this.id).emit('game:user-joined',newUser)
@@ -135,6 +143,27 @@ class Game {
           });
         this.users.splice(indexOfObject,1)
         this.io.to(this.id).emit('game:user-leaved',{id: id})
+    }
+
+    answerQuestion(id) {
+        const usersWhoAnswered = this.users.filter(el => el.has_answered_current_question === true).length
+        const user = this.users.find(el => el.id === id)
+        user.pts = user.pts + this.users.length - usersWhoAnswered
+        user.has_answered_current_question =  true
+        this.io.to(this.id).emit('game:user-answered', {
+            id: user.id,
+            pts: user.pts
+        })
+        // tous les joueurs ont repondu donc on passe a la question suivante
+        if (this.users.filter(el => el.has_answered_current_question === true).length === this.users.length) {
+            if (this.currentQuestionIndex + 1 < this.questions.length) {
+                this.stopTimer()
+                this.nextQuestion()
+            } else {
+                this.status = 'finished'
+                this.io.to(this.id).emit('game:finished',{st : this.status})
+            }
+        }
     }
 }
 
@@ -194,6 +223,14 @@ function ServeurJeu() {
                 if (user.is_game_host) {
                     game.resetGame()
                 }
+            }
+        })
+
+        socket.on('game:send-answer', (payload) => {
+            if (!games[payload.id]) {
+                return
+            } else {
+                games[payload.id].answerQuestion(socket.id)
             }
         })
 
