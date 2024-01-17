@@ -25,7 +25,7 @@
               </thead>
               <tbody>
               <!-- row 1 -->
-              <tr v-for="(user,index) in gameStore.game.users" :key="index">
+              <tr v-for="(user,index) in gameStore.game.users.sort(orderUserByScore)" :key="index">
                 <td>
                   <div class="flex items-center space-x-3">
                     <div>
@@ -62,6 +62,7 @@ import UsersBadge from "@/components/users/UsersBadge.vue";
 const router = useRouter()
 const route = useRoute()
 import {socket} from "@/socket.js";
+import {orderUserByScore} from "@/utils/users.js";
 
 const gameStore = useGameStore()
 
