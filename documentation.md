@@ -66,8 +66,4 @@ event de base server :
 -----------
 faire fonctionner les ost   
 
-ajouter des themes
-
 rendre dynamique le nombre max d'utilisateurs ?
-
-recuperer tt les jeux
