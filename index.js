@@ -240,6 +240,20 @@ function ServeurJeu() {
             }
         })
 
+        socket.on('game:leave', () => {
+            const idGame = [...socket.rooms].find(room => room !== socket.id);
+            const game = games[idGame]
+            if(idGame && game) {
+                game.leaveGame(socket.id) // on supprime le joueur de la partie
+                // si il y a plus de joueurs, on supprime la partie + on stop le timer
+                if(game.users.length === 0) {
+                    game.stopTimer()
+                    delete games[idGame]
+                }
+            }
+            socket.leaveAll()
+        })
+
         socket.on("disconnecting", () => {
             const idGame = [...socket.rooms].find(room => room !== socket.id);
             const game = games[idGame]

@@ -1,10 +1,14 @@
 <script setup>
-import {ref} from "vue";
+import {onBeforeUnmount, ref} from "vue";
 import Lobby from "@/components/lobby/Lobby.vue";
 import Running from "@/components/running/Running.vue";
 import {useGameStore} from "@/stores/game.js";
 import Finished from "@/components/finished/Finished.vue";
+import {socket} from "@/socket.js";
 const gameStore = useGameStore()
+onBeforeUnmount(() => {
+  socket.emit('game:leave')
+})
 </script>
 
 <template>

@@ -70,4 +70,4 @@ ajouter des themes
 
 rendre dynamique le nombre max d'utilisateurs ?
 
-quand on est sur la page accueil se deconnecter de tt les events
+recuperer tt les jeux
