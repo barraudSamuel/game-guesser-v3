@@ -2,6 +2,7 @@
 
 import User from "@/components/users/User.vue";
 import {useGameStore} from "@/stores/game.js";
+import {orderUserByScore} from "@/utils/users.js";
 
 const gameStore = useGameStore()
 
@@ -15,7 +16,7 @@ const gameStore = useGameStore()
       </div>
       <h2 class="card-title">Liste des joueurs : ({{ gameStore.game.users.length }}/100)</h2>
       <div class="grid grid-cols-1 gap-2">
-        <User v-for="user in gameStore.game.users" :key="user.id" :user="user" />
+        <User v-for="user in gameStore.game.users.sort(orderUserByScore)" :key="user.id" :user="user" />
       </div>
     </div>
   </div>

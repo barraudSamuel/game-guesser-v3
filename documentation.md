@@ -64,11 +64,6 @@ event de base server :
 
 
 -----------
-
-quand un joueur rejoint la partie en cours il doit avoir tt les infos de la games sinon il peut pas jouer
-
-ordonner la liste des joueurs par les points
-
 faire fonctionner les ost   
 
 ajouter des themes
