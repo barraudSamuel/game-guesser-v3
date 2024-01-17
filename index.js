@@ -2,7 +2,7 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const {questions} = require('./questions')
+const {videoGames} = require('./video-games')
 
 // names:
 // cq => current_question
@@ -110,7 +110,7 @@ class Game {
     }
 
     selectQuestions(numberOfQuestions) {
-        const questionsCopy = [...questions];
+        const questionsCopy = [...videoGames];
 
         // Tableau résultant
         const newQuestions = [];

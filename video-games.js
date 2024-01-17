@@ -1,4 +1,4 @@
-exports.questions = [
+exports.videoGames = [
     {
         "consoles": [
             "Pc"
