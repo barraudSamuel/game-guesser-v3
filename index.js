@@ -23,6 +23,7 @@ class Game {
         this.remainingTimeForQuestion = this.timeForQuestion
         this.users = []
         this.status = 'pending'
+        this.maxUsers = 100
     }
 
     startGame(payload) {
@@ -194,17 +195,22 @@ function ServeurJeu() {
 
         socket.on('game:join', (payload) => {
             if (games[payload.id]) {
-                socket.join(payload.id);
-                games[payload.id].joinGame({id:socket.id, display_name: payload.display_name, is_game_host: false}, socket)
-                socket.emit('game:infos-users', {users: games[payload.id].users})
+                const game = games[payload.id]
+                if (game.users.length <= game.maxUsers && game.status === 'pending') {
+                    socket.join(payload.id);
+                    game.joinGame({id:socket.id, display_name: payload.display_name, is_game_host: false}, socket)
+                    socket.emit('game:infos-users', {users: game.users})
+                } else {
+                    socket.emit('toast',{m: 'game-full-started',e:true})
+                }
             } else {
-                // todo envoyer une erreur via les toast
+                socket.emit('toast',{m: 'game-not-found',e:true})
             }
         })
 
         socket.on('game:start', (payload) => {
             if(!games[payload.id]){
-                return
+                socket.emit('toast',{m: 'game-not-found',e:true})
             }else {
                 const game = games[payload.id]
                 const user = game.users.find(el => el.id === socket.id)
@@ -216,7 +222,7 @@ function ServeurJeu() {
 
         socket.on('game:reset',(payload)=>{
             if(!games[payload.id]){
-                return
+                socket.emit('toast',{m: 'game-not-found',e:true})
             }else {
                 const game = games[payload.id]
                 const user = game.users.find(el => el.id === socket.id)
@@ -228,7 +234,7 @@ function ServeurJeu() {
 
         socket.on('game:send-answer', (payload) => {
             if (!games[payload.id]) {
-                return
+                socket.emit('toast',{m: 'game-not-found',e:true})
             } else {
                 games[payload.id].answerQuestion(socket.id)
             }

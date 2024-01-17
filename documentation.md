@@ -30,7 +30,7 @@ envois serveur:
 - `game:starded`
 > est trigger quand la partie passe en  running
 >
-> renvoit les infos de la partie
+> renvoit le statut de la partie
 - `game:user-leaved`
 > est trigger quand un utilisateur quitte la partie ou est deconnecté
 >
@@ -69,4 +69,10 @@ quand un joueur rejoint la partie en cours il doit avoir tt les infos de la game
 
 ordonner la liste des joueurs par les points
 
-faire fonctionner les ost
+faire fonctionner les ost   
+
+ajouter des themes
+
+rendre dynamique le nombre max d'utilisateurs ?
+
+quand on est sur la page accueil se deconnecter de tt les events
