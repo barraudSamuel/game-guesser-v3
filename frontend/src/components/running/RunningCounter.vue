@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div class="radial-progress" :style="{'--value': timePercent,'--size':'80px', '--thickness': '4px'}">
-      <span class="font-bold text-xl">{{ gameStore.game.remaining_time_for_question }}<i class="ri-timer-line"></i></span>
+    <div class="radial-progress flex justify-center items-center" :style="{'--value': timePercent,'--size':'80px', '--thickness': '4px'}">
+      <span class="countdown font-bold text-xl">
+        <span :style="`--value:${gameStore.game.remaining_time_for_question};`"></span>
+      </span>
+      <i class="ri-timer-line"></i>
     </div>
   </div>
 </template>
@@ -19,5 +22,7 @@ const timePercent = computed(() => {
 </script>
 
 <style scoped>
-
+.countdown > *:before {
+  transition: all .4s cubic-bezier(1, 0, 0, 1);
+}
 </style>
