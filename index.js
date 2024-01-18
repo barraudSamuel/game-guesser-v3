@@ -1,6 +1,8 @@
 // serveur.js
 const express = require('express');
 const http = require('http');
+require('dotenv').config()
+const path = require('path')
 const socketIO = require('socket.io');
 const {videoGames} = require('./video-games')
 
@@ -183,11 +185,16 @@ function ServeurJeu() {
     const server = http.createServer(app);
     const io = socketIO(server, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: process.env.APP_URL,
         }});
     const games = {};
 
-    app.use(express.static('public'));
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static('frontend/dist'))
+        app.get('*', (req, res, next) => {
+            res.sendFile('index.html', {'root': path.join(__dirname, './frontend/dist')})
+        })
+    }
 
     io.on('connection', (socket) => {
         socket.on('game:create', (payload) => {
@@ -284,7 +291,7 @@ function ServeurJeu() {
     });
 
     function demarrer() {
-        const port = 3008;
+        const port = process.env.PORT;
         server.listen(port, () => {
             console.log(`Serveur WebSocket écoutant sur le port ${port}`);
         });
