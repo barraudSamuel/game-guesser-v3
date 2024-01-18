@@ -23,7 +23,7 @@ class Game {
         this.remainingTimeForQuestion = this.timeForQuestion
         this.users = []
         this.status = 'pending'
-        this.maxUsers = 100
+        this.maxUsers = 300
         this.question_types = []
     }
 
@@ -155,21 +155,23 @@ class Game {
     answerQuestion(id) {
         const usersWhoAnswered = this.users.filter(el => el.has_answered_current_question === true).length
         const user = this.users.find(el => el.id === id)
-        user.pts = user.pts + this.users.length - usersWhoAnswered
-        user.has_answered_current_question =  true
-        this.io.to(this.id).emit('game:user-answered', {
-            id: user.id,
-            pts: user.pts
-        })
-        // tous les joueurs ont repondu donc on passe a la question suivante
-        if (this.users.filter(el => el.has_answered_current_question === true).length === this.users.length) {
-            if (this.currentQuestionIndex + 1 < this.questions.length) {
-                this.stopTimer()
-                this.nextQuestion()
-            } else {
-                this.stopTimer()
-                this.status = 'finished'
-                this.io.to(this.id).emit('game:finished',{st : this.status})
+        if (!user.has_answered_current_question){
+            user.pts = user.pts + this.users.length - usersWhoAnswered
+            user.has_answered_current_question =  true
+            this.io.to(this.id).emit('game:user-answered', {
+                id: user.id,
+                pts: user.pts
+            })
+            // tous les joueurs ont repondu donc on passe a la question suivante
+            if (this.users.filter(el => el.has_answered_current_question === true).length === this.users.length) {
+                if (this.currentQuestionIndex + 1 < this.questions.length) {
+                    this.stopTimer()
+                    this.nextQuestion()
+                } else {
+                    this.stopTimer()
+                    this.status = 'finished'
+                    this.io.to(this.id).emit('game:finished',{st : this.status})
+                }
             }
         }
     }
@@ -203,7 +205,9 @@ function ServeurJeu() {
         socket.on('game:join', (payload) => {
             if (games[payload.id]) {
                 const game = games[payload.id]
-                if (game.users.length <= game.maxUsers && game.status === 'pending') {
+                // on regarde si l'utilisateur est pas deja present
+                const user = game.users.find(el => el.id === socket.id)
+                if (game.users.length < game.maxUsers && game.status === 'pending' && !user) {
                     socket.join(payload.id);
                     game.joinGame({id:socket.id, display_name: payload.display_name, is_game_host: false}, socket)
                     socket.emit('game:infos-users', {users: game.users})
