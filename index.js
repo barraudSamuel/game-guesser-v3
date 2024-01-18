@@ -24,9 +24,11 @@ class Game {
         this.users = []
         this.status = 'pending'
         this.maxUsers = 100
+        this.question_types = []
     }
 
     startGame(payload) {
+        this.question_types = payload.question_types.filter(el => el.is_enabled).map(el => el.type)
         this.selectQuestions(payload.number_questions)
         this.status = 'running'
         this.timeForQuestion = payload.time_to_answer
@@ -37,7 +39,7 @@ class Game {
                 t: question.titles,
                 ost: question.ost_url,
                 cover: question.cover_url,
-                qt: 'blur'
+                qt: this.selectRandomQuestionTypes()
             },
             st: this.status,
             cqi: this.currentQuestionIndex,
@@ -45,6 +47,10 @@ class Game {
             rtfq: this.timeForQuestion
         })
         this.startTimer()
+    }
+
+    selectRandomQuestionTypes () {
+        return this.question_types[Math.floor(Math.random()*this.question_types.length)]
     }
 
     resetGame() {
@@ -100,7 +106,7 @@ class Game {
                 t: question.titles,
                 ost: question.ost_url,
                 cover: question.cover_url,
-                qt: 'blur'
+                qt: this.selectRandomQuestionTypes()
             },
             cqi: this.currentQuestionIndex,
             tq: this.questions.length,
@@ -161,6 +167,7 @@ class Game {
                 this.stopTimer()
                 this.nextQuestion()
             } else {
+                this.stopTimer()
                 this.status = 'finished'
                 this.io.to(this.id).emit('game:finished',{st : this.status})
             }

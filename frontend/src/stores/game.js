@@ -10,6 +10,7 @@ export const useGameStore = defineStore('game', () => {
         total_questions: 0,
         remaining_time_for_question: 30,
         time_for_question: 30,
+        is_cooldown_enabled: true,
         users: []
     });
 

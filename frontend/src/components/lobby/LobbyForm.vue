@@ -1,10 +1,13 @@
 <script setup>
 import {ref} from "vue";
-import { useClipboard } from '@vueuse/core'
+import {useClipboard} from '@vueuse/core'
 import {useRoute} from "vue-router";
 import {socket} from "@/socket.js";
+import {useToastsStore} from "@/stores/toasts.js";
 
 const route = useRoute()
+
+const toastStore = useToastsStore()
 
 const isLoading = ref(false)
 
@@ -37,10 +40,14 @@ const gameRef = ref({
 })
 
 const startGame = async() => {
-  socket.emit('game:start', {
-    id: route.params.id,
-    ...gameRef.value
-  })
+  if (gameRef.value.question_types.filter(el => el.is_enabled).length) {
+    socket.emit('game:start', {
+      id: route.params.id,
+      ...gameRef.value
+    })
+  } else {
+    toastStore.addToast({content: 'Il faut au moins un type de questions !'})
+  }
 }
 
 const invitationLink = ref(`${window.location.origin}?code=${route.params.id}`)

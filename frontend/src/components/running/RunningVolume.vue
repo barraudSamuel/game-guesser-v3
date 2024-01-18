@@ -14,9 +14,9 @@ import {ref} from "vue";
 import {useGameStore} from "@/stores/game";
 const gameStore = useGameStore()
 
-const volume = ref(gameStore.gameVolume)
+const volume = ref(gameStore.game_volume)
 const updateVolume = (e) => {
-  gameStore.gameVolume = parseInt(e.target.value)
+  gameStore.game_volume = parseInt(e.target.value)
 }
 </script>
 

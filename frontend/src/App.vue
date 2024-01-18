@@ -77,7 +77,6 @@ onClickOutside(dropDownBtn, () => {
       </ul>
     </details>
     <div class="customBg fixed w-screen h-screen -z-10 top-0 left-0" />
-    <Header/>
     <div>
       <RouterView />
     </div>

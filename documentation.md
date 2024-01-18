@@ -64,6 +64,6 @@ event de base server :
 
 
 -----------
-faire fonctionner les ost   
-
 rendre dynamique le nombre max d'utilisateurs ?
+
+faire un docker
