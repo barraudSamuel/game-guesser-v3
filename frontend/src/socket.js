@@ -1,8 +1,8 @@
 import { reactive } from "vue";
 import { io } from "socket.io-client";
 
-const URL = process.env.NODE_ENV === "production" ? 'http://localhost:3000' : "http://localhost:3008";
-
+const URL = import.meta.env.VITE_APP_BACK_URL;
+console.log(URL)
 export const socket = io(URL);
 
 socket.on('connect', () => {
