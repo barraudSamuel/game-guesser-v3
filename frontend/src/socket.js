@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 import { io } from "socket.io-client";
 
-const URL = process.env.NODE_ENV === "production" ? undefined : "http://localhost:3008";
+const URL = process.env.NODE_ENV === "production" ? 'http://localhost:3000' : "http://localhost:3008";
 
 export const socket = io(URL);
 

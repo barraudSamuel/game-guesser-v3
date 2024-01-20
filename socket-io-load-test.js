@@ -1,6 +1,7 @@
 const { io } = require("socket.io-client");
 
-const URL = process.env.URL || "http://localhost:3008";
+const URL = process.env.URL || "http://localhost:3000";
+console.log(URL)
 const MAX_CLIENTS = 1000;
 const POLLING_PERCENTAGE = 0.05;
 const CLIENT_CREATION_INTERVAL_IN_MS = 500;
@@ -45,7 +46,7 @@ const createClient = () => {
                 console.log(payload)
             })
             socket.emit("game:join",{
-                id: '123',
+                id: 'nzM1zB3izh',
                 display_name: client.toString()
             });
         },client * 100)

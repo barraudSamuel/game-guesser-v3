@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import Toast from '@/components/toasts/toast.vue'
+import Toast from '@/components/toasts/Toast.vue'
 import { useToastsStore } from '@/stores/toasts'
 const toastStore = useToastsStore();
 </script>
