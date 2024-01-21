@@ -4,7 +4,6 @@ const http = require('http');
 require('dotenv').config()
 const path = require('path')
 const socketIO = require('socket.io');
-const history = require('connect-history-api-fallback');
 const {videoGames} = require('./video-games')
 
 // names:
@@ -189,7 +188,6 @@ function ServeurJeu() {
             origin: process.env.APP_URL,
         }});
     const games = {};
-    app.use(history());
 
     if (process.env.NODE_ENV === 'production') {
         app.use(express.static('frontend/dist'))
