@@ -58,6 +58,7 @@ export const useGameStore = defineStore('game', () => {
         game.value.current_question_index = payload.cqi + 1
         game.value.total_questions = payload.tq
         game.value.remaining_time_for_question = payload.rtfq
+        game.value.time_for_question = payload.rtfq
     })
 
     socket.on('game:next-question', (payload)=> {
@@ -72,6 +73,7 @@ export const useGameStore = defineStore('game', () => {
         game.value.current_question.question_type = payload?.cq?.qt
         game.value.current_question_index = payload.cqi + 1
         game.value.remaining_time_for_question = payload.rtfq
+        game.value.time_for_question = payload.rtfq
     })
 
     socket.on('game:finished',(payload) => {

@@ -11,13 +11,38 @@
 
 <script setup>
 import {useGameStore} from "@/stores/game";
-import {computed} from "vue";
+import {computed, onMounted, onUnmounted, watch} from "vue";
 
 const gameStore = useGameStore()
+let interval = null;
 
 const timePercent = computed(() => {
   return gameStore.game.remaining_time_for_question*100/gameStore.game.time_for_question;
 });
+
+const currentGameQuestionIndex = computed(()=>{
+  return gameStore.game.current_question_index
+})
+
+watch(currentGameQuestionIndex,() => {
+  clockTimer()
+})
+
+onMounted(()=> {
+  clockTimer()
+})
+
+onUnmounted(()=> {
+  clearInterval(interval)
+})
+
+const clockTimer = (()=> {
+  gameStore.game.remaining_time_for_question = gameStore.game.time_for_question
+  clearInterval(interval)
+  interval = setInterval(()=>{
+    gameStore.game.remaining_time_for_question = gameStore.game.remaining_time_for_question - 1
+  },1000)
+})
 
 </script>
 

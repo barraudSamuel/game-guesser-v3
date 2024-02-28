@@ -46,7 +46,7 @@ class Game {
             st: this.status,
             cqi: this.currentQuestionIndex,
             tq: this.questions.length,
-            rtfq: this.timeForQuestion
+            rtfq: this.remainingTimeForQuestion
         })
         this.startTimer()
     }
@@ -83,7 +83,7 @@ class Game {
                 }
 
             } else {
-                this.io.to(this.id).emit('game:timer', {remaining_time: this.remainingTimeForQuestion})
+                // this.io.to(this.id).emit('game:timer', {remaining_time: this.remainingTimeForQuestion})
                 this.remainingTimeForQuestion--;
             }
         },1000)

@@ -65,5 +65,3 @@ event de base server :
 
 -----------
 rendre dynamique le nombre max d'utilisateurs ?
-
-faire un docker
