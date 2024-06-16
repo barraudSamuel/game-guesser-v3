@@ -21,7 +21,7 @@ services:
       - "traefik.http.routers.backend.tls.certResolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
     volumes:
-      - ./frontend/dist:/app/frontend/dist
+      - frontend_dist:/usr/share/nginx/html
 
   frontend:
     build:
@@ -37,7 +37,12 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certResolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    volumes:
+      - frontend_dist:/app/frontend/dist
 
 networks:
   dokploy-network:
     external: true
+
+volumes:
+  frontend_dist:
