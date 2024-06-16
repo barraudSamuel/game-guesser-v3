@@ -5,9 +5,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${PORT}:${PORT}"
+      - "3001:3000"
     environment:
-      - PORT=${PORT}
+      - PORT=3001
       - APP_URL=${APP_URL}
       - NODE_ENV=${NODE_ENV}
     volumes:
@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.backend.rule=Host(`game-guesser.eu`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certResolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=${PORT}"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
 
   frontend:
     build:
