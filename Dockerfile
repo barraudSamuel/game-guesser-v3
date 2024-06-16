@@ -13,6 +13,8 @@ RUN npm install
 # Copiez le reste des fichiers de l'application dans le conteneur
 COPY . .
 
+# Copiez les fichiers de build du frontend
+COPY --from=frontend /app/dist ./frontend/dist
 
 # Exposez le port sur lequel le serveur va écouter
 EXPOSE 3000
