@@ -13,6 +13,14 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`game-guesser.eu`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certResolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=${PORT}"
 
   frontend:
     build:
@@ -23,3 +31,15 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`game-guesser.eu`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certResolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+networks:
+  dokploy-network:
+    external: true

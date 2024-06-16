@@ -21,9 +21,9 @@ FROM nginx:alpine
 
 # Copiez les fichiers de build du frontend dans le répertoire d'Nginx pour les servir
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Exposez le port sur lequel Nginx va écouter
 EXPOSE 80
 
 # Aucune commande spécifique nécessaire, Nginx démarre automatiquement
-CMD ["nginx", "-g", "daemon off;"]
