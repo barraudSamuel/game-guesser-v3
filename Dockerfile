@@ -1,20 +1,22 @@
-# Utilisez une image Node.js en tant qu'image de base
-FROM node:21
+# Dockerfile
 
-# Définissez le répertoire de travail dans le conteneur
+# Étape de build pour le frontend
+FROM node:21 as frontend-build
 WORKDIR /app
-
-# Copiez les fichiers package.json et package-lock.json pour installer les dépendances du serveur
-COPY package*.json ./
-
-# Installez les dépendances du serveur
+COPY ./frontend/package*.json ./
 RUN npm install
+COPY ./frontend .
+RUN npm run build
 
-# Copiez le reste des fichiers de l'application dans le conteneur
-COPY . .
+# Étape de build pour le backend
+FROM node:21 as backend-build
+WORKDIR /app
+COPY ./backend/package*.json ./
+RUN npm install
+COPY ./backend .
 
-# Copiez les fichiers de build du frontend
-COPY --from=frontend /app/dist ./frontend/dist
+# Copiez les fichiers buildés du frontend dans le backend
+COPY --from=frontend-build /app/dist ./frontend/dist
 
 # Exposez le port sur lequel le serveur va écouter
 EXPOSE 3000

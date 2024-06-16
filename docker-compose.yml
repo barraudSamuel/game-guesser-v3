@@ -10,8 +10,6 @@ services:
       - PORT=3001
       - APP_URL=${APP_URL}
       - NODE_ENV=${NODE_ENV}
-    depends_on:
-      - frontend
     networks:
       - dokploy-network
     labels:
@@ -20,29 +18,7 @@ services:
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certResolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
-    volumes:
-      - frontend_dist:/usr/share/nginx/html
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "8081:80"
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`game-guesser.eu`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certResolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
-    volumes:
-      - frontend_dist:/app/frontend/dist
 
 networks:
   dokploy-network:
     external: true
-
-volumes:
-  frontend_dist:
