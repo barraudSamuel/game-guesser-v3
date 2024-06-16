@@ -1,6 +1,6 @@
 version: '3'
 services:
-  backend:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,10 +14,10 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`game-guesser.eu`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certResolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=3001"
+      - "traefik.http.routers.app.rule=Host(`game-guesser.eu`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certResolver=letsencrypt"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
 
 networks:
   dokploy-network:

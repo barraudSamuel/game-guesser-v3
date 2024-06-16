@@ -3,20 +3,20 @@
 # Étape de build pour le frontend
 FROM node:21 as frontend-build
 WORKDIR /app
-COPY ./frontend/package*.json ./
-RUN npm install
-COPY ./frontend .
-RUN npm run build
+COPY ./frontend/package*.json ./frontend/
+RUN npm install --prefix ./frontend
+COPY ./frontend ./frontend
+RUN npm run build --prefix ./frontend
 
 # Étape de build pour le backend
-FROM node:21 as backend-build
+FROM node:21
 WORKDIR /app
-COPY ./backend/package*.json ./
+COPY package*.json ./
 RUN npm install
-COPY ./backend .
+COPY . .
 
 # Copiez les fichiers buildés du frontend dans le backend
-COPY --from=frontend-build /app/dist ./frontend/dist
+COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 # Exposez le port sur lequel le serveur va écouter
 EXPOSE 3000
