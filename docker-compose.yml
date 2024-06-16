@@ -12,9 +12,6 @@ services:
       - NODE_ENV=${NODE_ENV}
     depends_on:
       - frontend
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - dokploy-network
     labels:
@@ -30,9 +27,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:80"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     networks:
       - dokploy-network
     labels:
