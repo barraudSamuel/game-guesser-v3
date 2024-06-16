@@ -1,10 +1,10 @@
 const { io } = require("socket.io-client");
 
-const URL = process.env.URL || "https://game-guesser.eu/";
+const URL = process.env.URL || "https://game-guesser.eu";
 console.log(URL)
-const MAX_CLIENTS = 1000;
+const MAX_CLIENTS = 300;
 const POLLING_PERCENTAGE = 0.05;
-const CLIENT_CREATION_INTERVAL_IN_MS = 100;
+const CLIENT_CREATION_INTERVAL_IN_MS = 500;
 const EMIT_INTERVAL_IN_MS = 1000;
 
 let clientCount = 0;
@@ -46,10 +46,10 @@ const createClient = () => {
                 console.log(payload)
             })
             socket.emit("game:join",{
-                id: 'soOcI4-7g5',
+                id: 'gREXDwrGyS',
                 display_name: client.toString()
             });
-        },client * 20)
+        },client * 5)
     }
 };
 
