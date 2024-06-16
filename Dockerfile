@@ -13,13 +13,8 @@ RUN npm install
 # Copiez le reste des fichiers de l'application dans le conteneur
 COPY . .
 
-# Définir une variable d'environnement dans le Dockerfile
-ENV PORT=3000
-ENV APP_URL=http://localhost:3000
-ENV NODE_ENV=production
-
 # Exposez le port sur lequel le serveur va écouter
-EXPOSE $PORT
+EXPOSE 3000
 
 # Commande de démarrage de l'application
 CMD ["node", "index.js"]
