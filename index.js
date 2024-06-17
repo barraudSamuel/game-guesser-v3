@@ -25,7 +25,7 @@ class Game {
         this.remainingTimeForQuestion = this.timeForQuestion
         this.users = []
         this.status = 'pending'
-        this.maxUsers = 300
+        this.maxUsers = 3000
         this.question_types = []
     }
 
