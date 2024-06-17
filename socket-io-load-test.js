@@ -46,10 +46,10 @@ const createClient = () => {
                 console.log(payload)
             })
             socket.emit("game:join",{
-                id: 'ZSFnOigyLk',
+                id: 'f3G3z_agYF',
                 display_name: client.toString()
             });
-        },client * 80)
+        },client * 50)
     }
 };
 
