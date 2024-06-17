@@ -66,7 +66,7 @@ watch(nbBadAnswer, (value)=>{
 
 const submitAnswer = () => {
   isLoading.value = true
-  console.log(gameStore.game.current_question.titles[0])
+  // console.log(gameStore.game.current_question.titles[0])
   if (currentQuestionAnswered.value){
     isLoading.value = false
     return

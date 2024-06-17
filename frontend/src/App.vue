@@ -53,6 +53,9 @@ const changeTheme = (newTheme) => {
 onMounted(() => {
   currentTheme.value = localStorage.getItem('theme') ?? 'light'
   document.documentElement.setAttribute('data-theme', currentTheme.value)
+  window.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+  });
 })
 
 onClickOutside(dropDownBtn, () => {

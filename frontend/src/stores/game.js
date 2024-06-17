@@ -30,7 +30,7 @@ export const useGameStore = defineStore('game', () => {
     //=====SOCKET=====
 
     socket.on('game:user-joined', (payload) => {
-        console.log(payload)
+        // console.log(payload)
         // on regarde si l'utilisateur est pas deja present
         const user = game.value.users.find(el => el.id === payload.id)
         if (!user) {
