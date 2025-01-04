@@ -5,6 +5,9 @@ require('dotenv').config()
 const path = require('path')
 const socketIO = require('socket.io');
 const {videoGames} = require('./video-games')
+const TelegramService = require("./telegramService");
+
+const telegramService  = new TelegramService()
 
 // names:
 // cq => current_question
@@ -203,6 +206,7 @@ function ServeurJeu() {
                 games[payload.id] = new Game(payload.id, io);
                 games[payload.id].joinGame({id:socket.id, display_name: payload.display_name, is_game_host: true}, socket)
                 socket.emit('game:infos-users', {users: games[payload.id].users})
+                telegramService.sendNotification(process.env.TELEGRAM_CHAT_ID, 'Nouvelle partie', `Une nouvelle partie a été créée par ${payload.display_name}`)
             } else {
                 games[payload.id].joinGame({id:socket.id, display_name: payload.display_name, is_game_host: false}, socket)
                 socket.emit('game:infos-users', {users: games[payload.id].users})
