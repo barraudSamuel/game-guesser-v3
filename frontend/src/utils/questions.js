@@ -98,6 +98,49 @@ function isLetterOrDigit(char)
         || char >= '0' && char <= '9';
 }
 
+function normalizePunctuation(str) {
+    return str
+        .replace(/'/g, "")           // Remove apostrophes: "don't" -> "dont"
+        .replace(/-/g, " ")          // Convert hyphens to spaces: "Spider-Man" -> "Spider Man"
+        .replace(/&/g, " and ")      // Normalize ampersands: "D&D" -> "D and D"
+        .replace(/\./g, "")          // Remove periods: "Dr." -> "Dr"
+        .replace(/:/g, " ")          // Convert colons to spaces in some contexts
+        .replace(/\s+/g, " ")        // Normalize multiple spaces to single space
+        .trim();
+}
+
+// NEW: Add this helper function
+function tryFlexibleWordMatching(validParts, inputParts, tolerance) {
+    // Try substring matching - check if input is contained in valid or vice versa
+    const validStr = validParts.join(" ").toLowerCase();
+    const inputStr = inputParts.join(" ").toLowerCase();
+
+    // Check if input is a significant substring of valid answer
+    if (validStr.includes(inputStr) && inputStr.length >= validStr.length * 0.6) {
+        return true;
+    }
+
+    // Check if valid is a significant substring of input
+    if (inputStr.includes(validStr) && validStr.length >= inputStr.length * 0.6) {
+        return true;
+    }
+
+    // Try partial word matching - see if most words match
+    let matchedWords = 0;
+    for (const inputPart of inputParts) {
+        for (const validPart of validParts) {
+            if (tokenEqual(validPart, inputPart, tolerance)) {
+                matchedWords++;
+                break;
+            }
+        }
+    }
+
+    // Accept if at least 70% of words match
+    const matchRatio = matchedWords / Math.max(validParts.length, inputParts.length);
+    return matchRatio >= 0.7;
+}
+
 function tokenEqual(valid, input, tolerance)
 {
     const cleanValid = toAsciiCharSet(valid.trim()).toLowerCase();
@@ -128,6 +171,10 @@ function tokenEqual(valid, input, tolerance)
 
 function toAsciiCharSet(str, keepSpaces)
 {
+    // First normalize punctuation
+    str = normalizePunctuation(str);
+
+    // Then apply existing logic
     // normalize decomposes Unicode characters to their components, like é = e + ̀
     // NFKD means we also want to decompose things like œ to o + e
     // filter to only key letters and digits (and spaces if parameter is at true)
@@ -158,6 +205,8 @@ function doesMatch(valid, input, tolerance)
 
     const validParts = valid.split(" ").filter(part => part.length > 0);
     const inputParts = input.split(" ").filter(part => part.length > 0);
+
+    // NEW: Try exact word count match first (existing logic)
     if (inputParts.length == validParts.length)
     {
         const allPartsEquals = validParts.every(
@@ -165,11 +214,10 @@ function doesMatch(valid, input, tolerance)
         if (allPartsEquals)
             return true;
     }
-    else
-    {
-        // Could be implemented in some way
-        // Like checking if token + nexttoken matches what was provided, but not implemented yet
-        return false;
+
+    // NEW: Try flexible word count matching
+    if (tryFlexibleWordMatching(validParts, inputParts, tolerance)) {
+        return true;
     }
 
     return false;
@@ -179,7 +227,57 @@ const defaultOptions = {
     /** Means that 1 error is tolerated every five characters. */
     tolerance: 5,
     /** An object mapping abbreviated strings to their full counterpart.  */
-    abbreviations: {}
+    abbreviations: {
+        // Common gaming abbreviations
+        "Brothers": "Bros",
+        "Bros": "Brothers",
+        "versus": "vs",
+        "vs": "versus",
+        "and": "&",
+        "&": "and",
+        "The Legend of": "Legend of",
+        "Legend of": "The Legend of",
+        "Super Mario": "Mario",
+        "Mario": "Super Mario",
+        "Final Fantasy": "FF",
+        "FF": "Final Fantasy",
+        "Street Fighter": "SF",
+        "SF": "Street Fighter",
+        "Mortal Kombat": "MK",
+        "MK": "Mortal Kombat",
+        "Grand Theft Auto": "GTA",
+        "GTA": "Grand Theft Auto",
+        "Call of Duty": "COD",
+        "COD": "Call of Duty",
+        "World of Warcraft": "WoW",
+        "WoW": "World of Warcraft",
+        "Counter-Strike": "CS",
+        "CS": "Counter-Strike",
+        "Battlefield": "BF",
+        "BF": "Battlefield",
+        "The Elder Scrolls": "Elder Scrolls",
+        "Elder Scrolls": "The Elder Scrolls",
+        "Assassin's Creed": "AC",
+        "AC": "Assassin's Creed",
+        "Metal Gear Solid": "MGS",
+        "MGS": "Metal Gear Solid",
+        "Resident Evil": "RE",
+        "RE": "Resident Evil",
+        "Dead or Alive": "DOA",
+        "DOA": "Dead or Alive",
+        "Kingdom Hearts": "KH",
+        "KH": "Kingdom Hearts",
+        "Dragon Quest": "DQ",
+        "DQ": "Dragon Quest",
+        "Tekken": "TK",
+        "TK": "Tekken",
+        "Pokemon": "Pokémon",
+        "Pokémon": "Pokemon",
+        // Articles (optional words)
+        "The ": "",
+        "A ": "",
+        "An ": ""
+    }
 };
 
 const answerListCache = {};
@@ -190,13 +288,53 @@ function getOrComputeAnswerList(validAnswer, options)
         return answerListCache[validAnswer];
 
     const answerList = [ validAnswer ];
+
+    // Process abbreviations
     for (const [original, abbreviated] of Object.entries(options.abbreviations))
     {
+        // Create variations with replacements
         if (validAnswer.includes(original))
         {
-            answerList.push(validAnswer.replace(original, abbreviated));
+            const newAnswer = validAnswer.replace(original, abbreviated);
+            if (!answerList.includes(newAnswer))
+            {
+                answerList.push(newAnswer);
+            }
+        }
+
+        // Also try case-insensitive matching
+        const originalLower = original.toLowerCase();
+        const validAnswerLower = validAnswer.toLowerCase();
+        if (validAnswerLower.includes(originalLower))
+        {
+            // Find the actual case in the original string
+            const index = validAnswerLower.indexOf(originalLower);
+            const actualCase = validAnswer.substring(index, index + original.length);
+            const newAnswer = validAnswer.replace(actualCase, abbreviated);
+            if (!answerList.includes(newAnswer))
+            {
+                answerList.push(newAnswer);
+            }
         }
     }
+
+    // Generate additional variations by removing common articles
+    const articlesToRemove = ["The ", "A ", "An "];
+    for (const article of articlesToRemove)
+    {
+        for (const answer of [...answerList])
+        {
+            if (answer.startsWith(article))
+            {
+                const withoutArticle = answer.substring(article.length);
+                if (!answerList.includes(withoutArticle))
+                {
+                    answerList.push(withoutArticle);
+                }
+            }
+        }
+    }
+
     answerListCache[validAnswer] = answerList;
     return answerList;
 }

@@ -4,7 +4,7 @@ const http = require('http');
 require('dotenv').config()
 const path = require('path')
 const socketIO = require('socket.io');
-const {videoGames} = require('./video-games')
+const {videoGames} = require('./video-games-igdb')
 const TelegramService = require("./telegramService");
 
 const telegramService  = new TelegramService()
