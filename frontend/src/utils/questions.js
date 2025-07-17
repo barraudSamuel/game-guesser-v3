@@ -109,8 +109,84 @@ function normalizePunctuation(str) {
         .trim();
 }
 
+// Helper function to check if a token contains numbers or roman numerals
+function containsNumber(token) {
+    const cleanToken = toAsciiCharSet(token.trim()).toLowerCase();
+    return !isNaN(cleanToken) || isRomanNumber(cleanToken);
+}
+
+// Helper function to convert numbers to roman numerals
+function intToRoman(num) {
+    const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    const symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+
+    let result = "";
+    for (let i = 0; i < values.length; i++) {
+        while (num >= values[i]) {
+            result += symbols[i];
+            num -= values[i];
+        }
+    }
+    return result;
+}
+
+// Helper function to generate roman/regular number variations
+function generateNumberVariations(text) {
+    const variations = [];
+    const words = text.split(' ');
+
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i].trim();
+        const cleanWord = toAsciiCharSet(word).toLowerCase();
+
+        // If it's a regular number, create roman version
+        if (!isNaN(cleanWord) && cleanWord !== "") {
+            const num = parseInt(cleanWord, 10);
+            if (num > 0 && num <= 50) { // Only convert reasonable numbers
+                const romanVersion = intToRoman(num);
+                const newWords = [...words];
+                newWords[i] = romanVersion;
+                variations.push(newWords.join(' '));
+            }
+        }
+        // If it's a roman numeral, create regular number version
+        else if (isRomanNumber(cleanWord)) {
+            const num = romanToInt(cleanWord);
+            const newWords = [...words];
+            newWords[i] = num.toString();
+            variations.push(newWords.join(' '));
+        }
+    }
+
+    return variations;
+}
+
 // NEW: Add this helper function
 function tryFlexibleWordMatching(validParts, inputParts, tolerance) {
+    // Check if any part contains numbers - if so, enforce strict matching
+    const validHasNumbers = validParts.some(part => containsNumber(part));
+    const inputHasNumbers = inputParts.some(part => containsNumber(part));
+
+    // If one side has numbers and the other doesn't, they cannot match
+    if (validHasNumbers !== inputHasNumbers) {
+        return false;
+    }
+
+    // If both sides have numbers, enforce strict matching
+    if (validHasNumbers && inputHasNumbers) {
+        // For numbered games, we need exact word count and strict number matching
+        if (validParts.length !== inputParts.length) {
+            return false;
+        }
+
+        // All parts must match exactly, including numbers
+        return validParts.every((validPart, index) => {
+            if (index >= inputParts.length) return false;
+            return tokenEqual(validPart, inputParts[index], tolerance);
+        });
+    }
+
+    // For non-numbered games, use flexible matching
     // Try substring matching - check if input is contained in valid or vice versa
     const validStr = validParts.join(" ").toLowerCase();
     const inputStr = inputParts.join(" ").toLowerCase();
@@ -188,6 +264,37 @@ function doesMatch(valid, input, tolerance)
 {
     //console.log(`Checking if propositions matches: ${valid} =?= ${input}`);
 
+    // GLOBAL NUMBER VALIDATION: Check for number conflicts at the top level
+    // This ensures ALL matching paths enforce strict number validation
+    const validTokens = valid.split(" ").filter(part => part.length > 0);
+    const inputTokens = input.split(" ").filter(part => part.length > 0);
+
+    const validHasNumbers = validTokens.some(part => containsNumber(part));
+    const inputHasNumbers = inputTokens.some(part => containsNumber(part));
+
+    // If both sides have numbers, check for conflicts before any other matching
+    if (validHasNumbers && inputHasNumbers) {
+        const validNumbers = validTokens.filter(part => containsNumber(part));
+        const inputNumbers = inputTokens.filter(part => containsNumber(part));
+
+        // Check if any numbers conflict
+        let hasConflict = false;
+        for (const validNum of validNumbers) {
+            for (const inputNum of inputNumbers) {
+                if (!tokenEqual(validNum, inputNum, tolerance)) {
+                    hasConflict = true;
+                    break;
+                }
+            }
+            if (hasConflict) break;
+        }
+
+        // If there's a number conflict, reject the match immediately
+        if (hasConflict) {
+            return false;
+        }
+    }
+
     if (!valid.includes(" ") && tokenEqual(valid, input, tolerance))
         return true;
 
@@ -196,7 +303,42 @@ function doesMatch(valid, input, tolerance)
         const splitByColon = valid.split(":");
         for (const part of splitByColon)
         {
-            if (doesMatch(part.trim(), input, tolerance))
+            const trimmedPart = part.trim();
+
+            // Pre-check: if both the part and input contain numbers,
+            // ensure they don't have conflicting numbers BEFORE calling doesMatch
+            const partParts = trimmedPart.split(" ").filter(p => p.length > 0);
+            const inputParts = input.split(" ").filter(p => p.length > 0);
+
+            const partHasNumbers = partParts.some(p => containsNumber(p));
+            const inputHasNumbers = inputParts.some(p => containsNumber(p));
+
+            // If both have numbers, check for conflicts first
+            if (partHasNumbers && inputHasNumbers) {
+                // Extract numbers from both sides and compare
+                const partNumbers = partParts.filter(p => containsNumber(p));
+                const inputNumbers = inputParts.filter(p => containsNumber(p));
+
+                // Check if any numbers conflict
+                let hasConflict = false;
+                for (const partNum of partNumbers) {
+                    for (const inputNum of inputNumbers) {
+                        if (!tokenEqual(partNum, inputNum, tolerance)) {
+                            hasConflict = true;
+                            break;
+                        }
+                    }
+                    if (hasConflict) break;
+                }
+
+                // If there's a number conflict, skip this part entirely
+                if (hasConflict) {
+                    continue;
+                }
+            }
+
+            // Only call doesMatch if there are no number conflicts
+            if (doesMatch(trimmedPart, input, tolerance))
             {
                 return true;
             }
@@ -292,6 +434,9 @@ function getOrComputeAnswerList(validAnswer, options)
     // Process abbreviations
     for (const [original, abbreviated] of Object.entries(options.abbreviations))
     {
+        // Skip empty abbreviations (articles)
+        if (abbreviated === "") continue;
+
         // Create variations with replacements
         if (validAnswer.includes(original))
         {
@@ -299,6 +444,27 @@ function getOrComputeAnswerList(validAnswer, options)
             if (!answerList.includes(newAnswer))
             {
                 answerList.push(newAnswer);
+
+                // For numbered games, also create attached form (e.g., "BF 2" -> "BF2")
+                const attachedForm = newAnswer.replace(/\s+/g, "");
+                if (attachedForm !== newAnswer && !answerList.includes(attachedForm))
+                {
+                    answerList.push(attachedForm);
+                }
+
+                // Generate roman/regular number variations
+                const romanRegularVariations = generateNumberVariations(newAnswer);
+                romanRegularVariations.forEach(variation => {
+                    if (!answerList.includes(variation)) {
+                        answerList.push(variation);
+
+                        // Also create attached form for the variation
+                        const attachedVariation = variation.replace(/\s+/g, "");
+                        if (attachedVariation !== variation && !answerList.includes(attachedVariation)) {
+                            answerList.push(attachedVariation);
+                        }
+                    }
+                });
             }
         }
 
@@ -314,6 +480,50 @@ function getOrComputeAnswerList(validAnswer, options)
             if (!answerList.includes(newAnswer))
             {
                 answerList.push(newAnswer);
+
+                // For numbered games, also create attached form
+                const attachedForm = newAnswer.replace(/\s+/g, "");
+                if (attachedForm !== newAnswer && !answerList.includes(attachedForm))
+                {
+                    answerList.push(attachedForm);
+                }
+            }
+        }
+    }
+
+    // Handle numbered abbreviations (like BF2, FF7, etc.)
+    for (const [original, abbreviated] of Object.entries(options.abbreviations))
+    {
+        // Skip empty abbreviations (articles)
+        if (abbreviated === "") continue;
+
+        // Check if validAnswer starts with an abbreviation followed by a number/roman numeral
+        const abbreviatedLower = abbreviated.toLowerCase();
+        const validAnswerLower = validAnswer.toLowerCase();
+
+        // Pattern: abbreviation + space + number/roman (e.g., "bf 2", "ff vii")
+        const spacePattern = new RegExp(`^${abbreviatedLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(.+)$`, 'i');
+        const spaceMatch = validAnswerLower.match(spacePattern);
+        if (spaceMatch) {
+            const numberPart = spaceMatch[1];
+            const expandedAnswer = original + " " + numberPart;
+            if (!answerList.some(answer => answer.toLowerCase() === expandedAnswer.toLowerCase())) {
+                answerList.push(expandedAnswer);
+            }
+        }
+
+        // Pattern: abbreviation + number/roman directly attached (e.g., "bf2", "ffvii")
+        const attachedPattern = new RegExp(`^${abbreviatedLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(.+)$`, 'i');
+        const attachedMatch = validAnswerLower.match(attachedPattern);
+        if (attachedMatch) {
+            const numberPart = attachedMatch[1];
+            // Only process if the remaining part looks like a number or roman numeral
+            if (!isNaN(numberPart) || isRomanNumber(numberPart)) {
+                const expandedAnswer = original + " " + numberPart;
+                if (!answerList.some(answer => answer.toLowerCase() === expandedAnswer.toLowerCase())) {
+                    answerList.push(expandedAnswer);
+                }
+
             }
         }
     }
