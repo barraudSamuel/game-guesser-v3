@@ -28,10 +28,10 @@ const gameRef = ref({
   time_to_answer: 30,
   is_cooldown_enabled: true,
   question_types: [
-    /*{
+    {
       type: 'ost',
       is_enabled: true
-    },*/
+    },
     {
       type: 'blur',
       is_enabled: true
