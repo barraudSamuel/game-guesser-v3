@@ -50,9 +50,6 @@ const joinGame = () => {
         <div class="text-center lg:text-left">
           <h1 class="text-5xl font-bold">game guesser</h1>
           <p class="py-6">game guesser est un jeu de quizz sur les jeux videos, venez defier vos amis</p>
-
-          <!-- FAQ Section -->
-
         </div>
         <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
           <div class="card-body">
@@ -75,6 +72,61 @@ const joinGame = () => {
                 <button v-else type="submit" class="btn btn-primary">rejoindre la partie</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-base-100 p-4 flex justify-center">
+      <div class="max-w-3xl py-8">
+        <h2 class="text-2xl font-bold mb-4">Questions fréquentes</h2>
+
+        <div class="collapse collapse-arrow bg-base-200 mb-2">
+          <input type="radio" name="faq-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Comment jouer à Game Guesser ?
+          </div>
+          <div class="collapse-content">
+            <p>Game Guesser est un jeu de quiz sur les jeux vidéo. Créez une partie ou rejoignez celle d'un ami avec un code. Devinez les jeux à partir d'indices visuels ou sonores !</p>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200 mb-2">
+          <input type="radio" name="faq-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Combien de joueurs peuvent participer ?
+          </div>
+          <div class="collapse-content">
+            <p>Vous pouvez jouer seul ou avec vos amis. Les salons sont limités à 300 joueurs.</p>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200 mb-2">
+          <input type="radio" name="faq-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Quels types de jeux sont inclus ?
+          </div>
+          <div class="collapse-content">
+            <p>Notre base de données contient une large variété de jeux vidéo de toutes les époques et plateformes, des classiques rétro aux dernières sorties.</p>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200 mb-2">
+          <input type="radio" name="faq-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Le jeu est-il gratuit ?
+          </div>
+          <div class="collapse-content">
+            <p>Oui, Game Guesser est entièrement gratuit ! Amusez-vous à tester vos connaissances en jeux vidéo sans aucun coût.</p>
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow bg-base-200 mb-2">
+          <input type="radio" name="faq-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Puis-je jouer sur mobile ?
+          </div>
+          <div class="collapse-content">
+            <p>Absolument ! Game Guesser est optimisé pour fonctionner sur tous les appareils : ordinateurs, tablettes et smartphones.</p>
           </div>
         </div>
       </div>
