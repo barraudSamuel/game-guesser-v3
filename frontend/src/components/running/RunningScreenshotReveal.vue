@@ -1,6 +1,6 @@
 <template>
   <div class="w-full mx-auto">
-    <div class="card bg-base-200 shadow-xl">
+    <div class="card">
       <div class="card-body text-center py-4">
         <h3 class="card-title justify-center mb-2 text-lg">Captures d'écran du jeu</h3>
 
