@@ -52,8 +52,44 @@ const gameRef = ref({
       type: 'screenshots',
       is_enabled: true
     }
-  ]
+  ],
+  filters: {
+    year_min: null,
+    year_max: null,
+    consoles: []
+  }
 })
+
+const availableConsoles = ref([
+  'PC (Microsoft Windows)',
+  'PlayStation',
+  'PlayStation 2',
+  'PlayStation 3',
+  'PlayStation 4',
+  'PlayStation 5',
+  'Xbox',
+  'Xbox 360',
+  'Xbox One',
+  'Xbox Series X|S',
+  'Nintendo Switch',
+  'Nintendo DS',
+  'Nintendo 3DS',
+  'Wii',
+  'Wii U',
+  'Game Boy Advance',
+  'PSP',
+  'PS Vita',
+  'Dreamcast',
+  'GameCube',
+  'Nintendo 64',
+  'Super Nintendo Entertainment System',
+  'Sega Genesis',
+  'Arcade',
+  'Mac',
+  'Linux',
+  'iOS',
+  'Android'
+])
 
 const startGame = async() => {
   if (gameRef.value.question_types.filter(el => el.is_enabled).length) {
@@ -95,6 +131,41 @@ const { text, copy, copied, isSupported } = useClipboard({ invitationLink })
                 <span class="label-text tooltip" :data-tip="questionTypesDescription[type.type]?.description">{{ questionTypesDescription[type.type]?.title }}</span>
               </label>
               <input v-model="type.is_enabled" type="checkbox" checked="checked" class="checkbox" />
+            </div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-left font-semibold">Filtres de jeux :</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Année minimum</span>
+              </label>
+              <input v-model="gameRef.filters.year_min" type="number" min="1970" max="2025" placeholder="Ex: 2000" class="input input-bordered input-sm" />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Année maximum</span>
+              </label>
+              <input v-model="gameRef.filters.year_max" type="number" min="1970" max="2025" placeholder="Ex: 2020" class="input input-bordered input-sm" />
+            </div>
+          </div>
+          <div class="form-control mt-4">
+            <label class="label">
+              <span class="label-text">Consoles (laisser vide pour toutes)</span>
+            </label>
+            <div class="max-h-32 overflow-y-auto border rounded p-2 bg-base-200">
+              <div v-for="console in availableConsoles" :key="console" class="form-control flex flex-row justify-start items-center py-1">
+                <input
+                  v-model="gameRef.filters.consoles"
+                  :value="console"
+                  type="checkbox"
+                  class="checkbox checkbox-sm mr-2"
+                />
+                <label class="label cursor-pointer">
+                  <span class="label-text text-sm">{{ console }}</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>

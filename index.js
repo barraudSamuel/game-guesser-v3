@@ -34,7 +34,7 @@ class Game {
 
     startGame(payload) {
         this.question_types = payload.question_types.filter(el => el.is_enabled).map(el => el.type)
-        this.selectQuestions(payload.number_questions)
+        this.selectQuestions(payload.number_questions, payload.filters)
         this.status = 'running'
         this.timeForQuestion = payload.time_to_answer
         this.remainingTimeForQuestion = payload.time_to_answer
@@ -132,20 +132,47 @@ class Game {
         this.startTimer();
     }
 
-    selectQuestions(numberOfQuestions) {
-        const questionsCopy = [...videoGames];
+    selectQuestions(numberOfQuestions, filters = {}) {
+        // Appliquer les filtres
+        let filteredGames = [...videoGames];
+
+        // Filtrer par année
+        if (filters.year_min) {
+            filteredGames = filteredGames.filter(game => game.year >= filters.year_min);
+        }
+        if (filters.year_max) {
+            filteredGames = filteredGames.filter(game => game.year <= filters.year_max);
+        }
+
+        // Filtrer par consoles
+        if (filters.consoles && filters.consoles.length > 0) {
+            filteredGames = filteredGames.filter(game =>
+                game.consoles && game.consoles.some(console =>
+                    filters.consoles.includes(console)
+                )
+            );
+        }
+
+        // Vérifier qu'il y a assez de jeux après filtrage
+        if (filteredGames.length === 0) {
+            console.warn('Aucun jeu trouvé avec les filtres appliqués, utilisation de tous les jeux');
+            filteredGames = [...videoGames];
+        }
+
+        // Si on demande plus de questions qu'il n'y a de jeux disponibles
+        const actualNumberOfQuestions = Math.min(numberOfQuestions, filteredGames.length);
 
         // Tableau résultant
         const newQuestions = [];
-        for (let i = 0; i < numberOfQuestions; i++) {
+        for (let i = 0; i < actualNumberOfQuestions; i++) {
             // Sélection d'un index au hasard dans le tableau restant
-            const indexRandom = Math.floor(Math.random() * questionsCopy.length);
+            const indexRandom = Math.floor(Math.random() * filteredGames.length);
 
             // Ajout de l'élément correspondant à l'index au tableau résultant
-            newQuestions.push(questionsCopy[indexRandom]);
+            newQuestions.push(filteredGames[indexRandom]);
 
             // Suppression de l'élément du tableau de base copié pour éviter la répétition
-            questionsCopy.splice(indexRandom, 1);
+            filteredGames.splice(indexRandom, 1);
         }
         this.questions = newQuestions
     }
