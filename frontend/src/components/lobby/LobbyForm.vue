@@ -20,6 +20,10 @@ const questionTypesDescription = ref({
     description: 'Une pochette de jeu vidéo apparait, elle est très foutée et devient de plus en plus nette celui qui répond le plus tôt marque plus de points',
     title: 'Cover floutée'
   },
+  gradual: {
+    description: 'Les informations sur le jeu se révèlent progressivement : année, développeur, plateformes, genres, et enfin la pochette. Celui qui répond le plus tôt marque plus de points',
+    title: 'Révélation progressive'
+  },
   zoom: 'Une pochette de jeu vidéo apparait elle est très zomée et dézoom de lus en plus, celui qui répond le plus tôt marque plus de points'
 })
 
@@ -28,12 +32,16 @@ const gameRef = ref({
   time_to_answer: 30,
   is_cooldown_enabled: true,
   question_types: [
-    {
+    /*{
       type: 'ost',
+      is_enabled: true
+    },*/
+    {
+      type: 'blur',
       is_enabled: true
     },
     {
-      type: 'blur',
+      type: 'gradual',
       is_enabled: true
     }
   ]

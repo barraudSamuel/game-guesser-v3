@@ -54,6 +54,12 @@ export const useGameStore = defineStore('game', () => {
         game.value.current_question.titles = payload?.cq?.t
         game.value.current_question.ost_url = payload?.cq?.ost
         game.value.current_question.cover_url = payload?.cq?.cover
+        game.value.current_question.year = payload?.cq?.year
+        game.value.current_question.developer = payload?.cq?.developer
+        game.value.current_question.categories = payload?.cq?.categories
+        game.value.current_question.consoles = payload?.cq?.consoles
+        game.value.current_question.screenshots = payload?.cq?.screenshots
+        game.value.current_question.themes = payload?.cq?.themes
         game.value.current_question.question_type = payload?.cq?.qt
         game.value.current_question_index = payload.cqi + 1
         game.value.total_questions = payload.tq
@@ -70,6 +76,12 @@ export const useGameStore = defineStore('game', () => {
         game.value.current_question.titles = payload?.cq?.t
         game.value.current_question.ost_url = payload?.cq?.ost
         game.value.current_question.cover_url = payload?.cq?.cover
+        game.value.current_question.year = payload?.cq?.year
+        game.value.current_question.developer = payload?.cq?.developer
+        game.value.current_question.categories = payload?.cq?.categories
+        game.value.current_question.consoles = payload?.cq?.consoles
+        game.value.current_question.screenshots = payload?.cq?.screenshots
+        game.value.current_question.themes = payload?.cq?.themes
         game.value.current_question.question_type = payload?.cq?.qt
         game.value.current_question_index = payload.cqi + 1
         game.value.remaining_time_for_question = payload.rtfq
