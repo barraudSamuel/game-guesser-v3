@@ -50,16 +50,9 @@ const joinGame = () => {
         <div class="text-center lg:text-left">
           <h1 class="text-5xl font-bold">game guesser</h1>
           <p class="py-6">game guesser est un jeu de quizz sur les jeux videos, venez defier vos amis</p>
-          <div class="collapse collapse-arrow bg-base-200">
-            <input type="checkbox" />
-            <div class="collapse-title text-xl font-medium">
-              FAQ
-            </div>
-            <div class="collapse-content">
-              <p><strong>Combien de joueurs peuvent rejoindre une partie ?</strong></p>
-              <p>Chaque partie est limitée à 300 joueurs maximum par room.</p>
-            </div>
-          </div>
+
+          <!-- FAQ Section -->
+
         </div>
         <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
           <div class="card-body">
