@@ -24,6 +24,10 @@ const questionTypesDescription = ref({
     description: 'Les informations sur le jeu se révèlent progressivement : année, développeur, plateformes, genres, et enfin la pochette. Celui qui répond le plus tôt marque plus de points',
     title: 'Révélation progressive'
   },
+  screenshots: {
+    description: 'Les captures d\'écran du jeu se révèlent progressivement une par une au fil du temps, puis le nom du jeu est révélé à la fin. Celui qui répond le plus tôt marque plus de points',
+    title: 'Capture d\'écran'
+  },
   zoom: 'Une pochette de jeu vidéo apparait elle est très zomée et dézoom de lus en plus, celui qui répond le plus tôt marque plus de points'
 })
 
@@ -42,6 +46,10 @@ const gameRef = ref({
     },
     {
       type: 'gradual',
+      is_enabled: true
+    },
+    {
+      type: 'screenshots',
       is_enabled: true
     }
   ]
